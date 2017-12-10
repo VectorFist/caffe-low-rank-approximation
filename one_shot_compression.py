@@ -17,6 +17,7 @@ def one_shot_compression(network_in, weights_in, network_out, weights_out, first
 def find_ranks(network_in, weights_in, first_layer=False):
     network_caffe = caffe.Net(network_in, weights_in, caffe_pb2.TEST)
     layers_ranks = dict()
+    last_layer = None
     flag = False
 
     for i in range(len(network_caffe.layers)):
@@ -29,7 +30,10 @@ def find_ranks(network_in, weights_in, first_layer=False):
 
             if not flag and not first_layer:
                 flag = True
-                layers_ranks[name] = (weights.shape[1], weights.shape[0])
+                mode_4 = unfold(weights, 0)
+                _, s_, _, _ = VBMF(mode_4)
+                mode_4_dim = len(np.diag(s_))
+                layers_ranks[name] = (weights.shape[1], mode_4_dim)
                 continue
 
             mode_3 = unfold(weights, 1)
@@ -44,6 +48,11 @@ def find_ranks(network_in, weights_in, first_layer=False):
             _, s_, _, _ = VBMF(weights)
             dim = len(np.diag(s_))
             layers_ranks[name] = dim
+            last_layer = (name, weights.shape[0])
+
+    for key in layers_ranks:
+        if key == last_layer[0]:
+            layers_ranks[key] = last_layer[1]
 
     return layers_ranks
 

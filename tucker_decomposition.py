@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse.linalg as ln
 
 
-# noinspection PyStringFormat,PyCompatibility
+# noinspection PyStringFormat,PyCompatibility,PyTypeChecker
 def tucker_decomposition(matrix, target_dim):
     current_dim = matrix.shape
     dim_length = len(current_dim)
